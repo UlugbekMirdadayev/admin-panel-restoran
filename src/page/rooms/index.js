@@ -22,10 +22,10 @@ const Room = () => {
     (update) => {
       if (!update && rooms?.length) return;
       dispatch(setLoader(true));
-      getRequest("room", user?.token)
+      getRequest("room/get", user?.token)
         .then(({ data }) => {
           dispatch(setLoader(false));
-          dispatch(setRooms(data?.innerData));
+          dispatch(setRooms(data?.result));
         })
         .catch((err) => {
           dispatch(setLoader(false));
@@ -77,7 +77,7 @@ const Room = () => {
         data={rooms}
         handleDelete={(id) =>
           handleDelete(
-            `room/${id}`,
+            `room/delete/${id}`,
             (boolean) => dispatch(setLoader(boolean)),
             handleGetRooms,
             user?.token

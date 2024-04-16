@@ -22,7 +22,7 @@ export default function TableComponent({ data, user, setLoader }) {
       getRequest(`/order/${data?.id}`, user?.token)
         .then(({ data }) => {
           setLoader(false);
-          setOrder(data?.innerData);
+          setOrder(data?.result);
           setOpen(true);
         })
         .catch((err) => {

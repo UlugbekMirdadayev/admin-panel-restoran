@@ -1,25 +1,21 @@
 import React, { useState } from "react";
 import { Button, Flex, Image, Menu, Table, Text } from "@mantine/core";
-import moment from "moment";
 import { formatCurrencyUZS } from "../../utils/helpers";
-import { departments } from "../../utils/constants";
 import ModalScreen from "../../components/modal";
-import { Eye, Trash } from "../../components/icon";
+import { Eye, Trash, Reload } from "../../components/icon";
 
 export default function TableComponent({ data, handleDelete }) {
   const [image, setImage] = useState(null);
   const rows = data?.map((element) => (
     <Table.Tr key={element?.id}>
       <Table.Td>{element?.name}</Table.Td>
-      <Table.Td>{formatCurrencyUZS(element?.price)}</Table.Td>
-      <Table.Td>{element?.type}</Table.Td>
-      <Table.Td>
-        {departments?.find(({ value }) => value === element?.department)?.label}
-      </Table.Td>
-      <Table.Td>
-        {moment(element?.created_at).format("DD-MM-YYYY HH:mm")}
-      </Table.Td>
-      <Table.Td onClick={() => setImage(element?.img)}>
+      <Table.Td>{formatCurrencyUZS(element?.sell_price)}</Table.Td>
+      <Table.Td>{element?.category?.name}</Table.Td>
+      <Table.Td
+        onClick={() =>
+          setImage("https://epos-admin.dadabayev.uz/" + element?.image_path)
+        }
+      >
         <ModalScreen
           title={"Product rasmi"}
           btn_title={
@@ -40,7 +36,7 @@ export default function TableComponent({ data, handleDelete }) {
           )}
         />
       </Table.Td>
-      <Table.Td>
+      <Table.Td display={"flex"}>
         <Menu
           shadow="md"
           width={200}
@@ -62,6 +58,9 @@ export default function TableComponent({ data, handleDelete }) {
             <Menu.Item>Yo'q , keyinroq</Menu.Item>
           </Menu.Dropdown>
         </Menu>
+        <Button mx={"md"} display={"flex"} align={"center"}>
+          <Reload fill="#fff" /> <Text pl={10}>Maxsulotni yangilash</Text>
+        </Button>
       </Table.Td>
     </Table.Tr>
   ));
@@ -81,8 +80,6 @@ export default function TableComponent({ data, handleDelete }) {
           <Table.Th>Maxsulot nomi</Table.Th>
           <Table.Th>Maxsulot narxi</Table.Th>
           <Table.Th>Maxsulot turi</Table.Th>
-          <Table.Th>Bo'limga tegishli</Table.Th>
-          <Table.Th>Sanasi</Table.Th>
           <Table.Th>Rasmi</Table.Th>
           <Table.Th>O'chirish</Table.Th>
         </Table.Tr>
@@ -98,6 +95,20 @@ export default function TableComponent({ data, handleDelete }) {
           </Table.Tr>
         )}
       </Table.Tbody>
+      {data?.length ? (
+        <Table.Tfoot>
+          <Table.Tr
+            style={{
+              borderTop: "var(--_tr-border-bottom, none)",
+            }}
+          >
+            <Table.Th colSpan={7} ta="center">
+              Jami: {data?.length}
+              ta maxsulot mavjud.
+            </Table.Th>
+          </Table.Tr>
+        </Table.Tfoot>
+      ) : null}
     </Table>
   );
 }

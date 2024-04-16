@@ -8,13 +8,12 @@ import {
   Image,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { departments, units } from "../../utils/constants";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { postRequest } from "../../services/api";
 import { useDispatch } from "react-redux";
 import { setLoader } from "../../redux/loaderSlice";
-import { useUser } from "../../redux/selectors";
+import { useCategories, useMeasurements, useUser } from "../../redux/selectors";
 
 const inputs = [
   {
@@ -22,13 +21,16 @@ const inputs = [
     label: "Nomi",
   },
   {
-    name: "price",
-    label: "Narxi",
+    name: "body_price",
+    label: "Tan narxi",
   },
   {
-    name: "type",
-    label: "Turi",
-    typingChange: (e) => (e.target.value = e.target.value.toLowerCase()),
+    name: "sell_price",
+    label: "Sotilish narxi",
+  },
+  {
+    name: "quantity",
+    label: "Dona",
   },
 ];
 
@@ -36,27 +38,37 @@ function FormCreate({ handleOrders, close }) {
   const user = useUser();
   const dispatch = useDispatch();
   const [image, setImage] = useState(null);
+  const categories = useCategories();
+  const measurements = useMeasurements();
 
   const form = useForm({
     initialValues: {
+      category_id: String(categories[0]?.id),
+      measurement_id: String(measurements[0]?.id),
       name: "",
       price: "",
-      type: "",
-      img: image,
-      unit: units[0],
-      department: departments[0].value,
+      photo: image,
+      is_infinite: false,
+      quantity: "",
+      body_price: "",
+      sell_price: "",
     },
   });
 
   const onSubmit = (values) => {
-    if (!values.img) return toast.info("Rasm yuklang !");
+    if (!values.photo) return toast.info("Rasm yuklang !");
     const formData = new FormData();
-    Object.keys(values).map((key) => formData.append(key, typeof values[key] === "string" ? values[key]?.trim() : values[key]));
+    Object.keys(values).map((key) =>
+      formData.append(
+        key,
+        typeof values[key] === "string" ? values[key]?.trim() : values[key]
+      )
+    );
     dispatch(setLoader(true));
-    postRequest("product", formData, user?.token)
+    postRequest("product/create", formData, user?.token)
       .then(({ data }) => {
         dispatch(setLoader(false));
-        toast.success(data?.message);
+        toast.success(data?.result);
         handleOrders(true);
         close();
       })
@@ -92,7 +104,7 @@ function FormCreate({ handleOrders, close }) {
           description="Rasm tanlang"
           placeholder="Rasm tanlang"
           accept="image/*"
-          {...form.getInputProps("img")}
+          {...form.getInputProps("photo")}
         />
         {inputs.map((input) => (
           <TextInput
@@ -109,17 +121,24 @@ function FormCreate({ handleOrders, close }) {
         <Select
           required
           mt={"md"}
-          label="Birligi"
-          data={units}
-          defaultValue={units[0]}
-          {...form.getInputProps("unit")}
+          label="O'lchov birligi"
+          data={measurements.map((item) => ({
+            value: String(item?.id),
+            label: item?.name,
+            disabled: String(item?.id) === String(form.values.measurement_id),
+          }))}
+          {...form.getInputProps("measurement_id")}
         />
         <Select
           required
           mt={"md"}
-          label="Bo'lim"
-          data={departments}
-          {...form.getInputProps("department")}
+          label="Kategoriya"
+          data={categories.map((item) => ({
+            value: String(item?.id),
+            label: item?.name,
+            disabled: String(item?.id) === String(form.values.category_id),
+          }))}
+          {...form.getInputProps("category_id")}
         />
 
         <Group justify="flex-end" mt="md">

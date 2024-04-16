@@ -8,3 +8,5 @@ export const useRooms = () => useSelector(({ rooms }) => rooms);
 export const useOrders = () => useSelector(({ orders }) => orders);
 export const useAdmins = () => useSelector(({ admin }) => admin);
 export const useProducts = () => useSelector(({ products }) => products);
+export const useCategories = () => useSelector(({ categories }) => categories);
+export const useMeasurements = () => useSelector(({ measurements }) => measurements);

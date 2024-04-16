@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Menu, Table } from "@mantine/core";
-import { patchRequest } from "../../services/api";
+import { putRequest } from "../../services/api";
 import { toast } from "react-toastify";
 import { useUser } from "../../redux/selectors";
 import moment from "moment";
@@ -16,13 +16,20 @@ export default function TableComponent({
   const user = useUser();
   const handleAktiveChange = (id) => {
     setLoader(true);
-    patchRequest(`afitsant/activate/${id}`, {}, user?.token)
+    putRequest(
+      `user/update`,
+      {
+        user_id: id,
+        is_active: data?.find((item) => item?.id === id)?.is_active === 0 ? 1 : 0,
+      },
+      user?.token
+    )
       .then(({ data: response }) => {
-        toast.info(response?.message);
+        toast.info(response?.result);
         setWaiters(
           data?.map((item) => {
             if (item?.id === id) {
-              return { ...item, active: item?.active === 0 ? 1 : 0 };
+              return { ...item, is_active: item?.is_active === 0 ? 1 : 0 };
             }
             return item;
           })
@@ -39,16 +46,14 @@ export default function TableComponent({
       <Table.Td>
         <Button
           onClick={() => handleAktiveChange(element?.id)}
-          bg={!element?.active ? "dimmed" : undefined}
+          bg={!element?.is_active ? "dimmed" : undefined}
         >
-          {element?.active ? "Aktive" : "Aktiv emas"}
+          {element?.is_active ? "Aktive" : "Aktiv emas"}
         </Button>
       </Table.Td>
-      <Table.Td>{element?.fullname}</Table.Td>
-      <Table.Td>{element?.phone}</Table.Td>
-      <Table.Td>
-        {moment(element?.created_at).format("DD-MMMM-YYYY dddd")}
-      </Table.Td>
+      <Table.Td>{element?.full_name}</Table.Td>
+      <Table.Td>{element?.phone_number}</Table.Td>
+
       <Table.Td>
         <Menu
           shadow="md"
@@ -87,7 +92,6 @@ export default function TableComponent({
           <Table.Th>Status</Table.Th>
           <Table.Th>Ofitsiant ismi</Table.Th>
           <Table.Th>Ofitsiant Raqami</Table.Th>
-          <Table.Th>Ish boshlagan sanasi</Table.Th>
           <Table.Th>Ishdan olish</Table.Th>
         </Table.Tr>
       </Table.Thead>

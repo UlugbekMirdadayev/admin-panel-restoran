@@ -1,3 +1,4 @@
+import React, { useEffect, useCallback } from "react";
 import { Button, Menu, Text } from "@mantine/core";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -13,6 +14,10 @@ import {
   Room,
   LogOut,
 } from "../icon";
+import { getRequest } from "../../services/api";
+import { useUser } from "../../redux/selectors";
+import { setCategories } from "../../redux/categoriesSlice";
+import { setMeasurements } from "../../redux/measurementSlice";
 
 const tabs = [
   { link: "/", label: "Hisobotlar", icon: Dashboard },
@@ -26,6 +31,34 @@ const tabs = [
 export default function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useUser();
+
+  const getCategory = useCallback(() => {
+    if (!user?.token) return;
+    getRequest("category/get", user?.token)
+      .then(({ data }) => {
+        dispatch(setCategories(data?.result));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [user?.token, dispatch]);
+
+  const getMeasurement = useCallback(() => {
+    if (!user?.token) return;
+    getRequest("measurement/get", user?.token)
+      .then(({ data }) => {
+        dispatch(setMeasurements(data?.result));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [user?.token, dispatch]);
+
+  useEffect(() => {
+    getCategory();
+    getMeasurement();
+  }, [getCategory, getMeasurement]);
 
   const links = tabs.map((item) => (
     <NavLink
@@ -51,13 +84,14 @@ export default function Sidebar() {
     <nav className={classes.navbar}>
       <NavLink to={"/"}>
         <Text fw={500} size="sm" className={classes.title} c="dimmed" mb="xs">
-          Hadya
+          Admin Panel Restoran
         </Text>
       </NavLink>
       <div className={classes.navbarMain}>
         {links}
         <a
-          href="https://www.hadya2020.uz/"
+          href="link to your website"
+          onClick={(e) => e.preventDefault()}
           target="_blank"
           rel="noreferrer"
           className={classes.link}

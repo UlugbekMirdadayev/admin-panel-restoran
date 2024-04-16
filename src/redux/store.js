@@ -7,6 +7,8 @@ import rooms from "./roomSlice";
 import orders from "./orderSlice";
 import admin from "./adminSlice";
 import products from "./productSlice";
+import categories from "./categoriesSlice";
+import measurements from "./measurementSlice";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +20,8 @@ const store = configureStore({
     orders,
     admin,
     products,
+    categories,
+    measurements
   },
 });
 

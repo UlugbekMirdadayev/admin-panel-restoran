@@ -19,10 +19,10 @@ const Order = () => {
     (update) => {
       if (!update && orders?.length) return;
       dispatch(setLoader(true));
-      getRequest("order?active=1", user?.token)
+      getRequest("order/get", user?.token)
         .then(({ data }) => {
           dispatch(setLoader(false));
-          dispatch(setOrders(data?.innerData));
+          dispatch(setOrders(data?.result));
         })
         .catch((err) => {
           dispatch(setLoader(false));

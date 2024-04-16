@@ -20,10 +20,10 @@ const Waiter = () => {
     (update) => {
       if (!update && waiters?.length) return;
       dispatch(setLoader(true));
-      getRequest("afitsant", user?.token)
+      getRequest("user/get", user?.token)
         .then(({ data }) => {
           dispatch(setLoader(false));
-          dispatch(setWaiters(data?.innerData));
+          dispatch(setWaiters(data?.result));
         })
         .catch((err) => {
           dispatch(setLoader(false));

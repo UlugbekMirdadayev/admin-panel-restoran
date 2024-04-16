@@ -16,20 +16,20 @@ const inputs = [
     as: NumberInput,
   },
   {
-    name: "type",
+    name: "room_type_id",
     label: "Joy turi",
     as: Select,
     data: [
       {
-        value: "room",
+        value: "1",
         label: "Xona",
       },
       {
-        value: "stol",
+        value: "2",
         label: "Stol",
       },
     ],
-    disabled: true,
+    disabled: false,
   },
 ];
 
@@ -39,21 +39,21 @@ function FormCreate({ handleUpdate, close, setLoader }) {
     initialValues: {
       name: "",
       places: "",
-      type: "stol",
+      room_type_id: "1",
     },
   });
 
   const onSubmit = (values) => {
-    delete values.type;
     setLoader(true);
-    postRequest("room", values, user?.token)
+    postRequest("room/create", values, user?.token)
       .then(({ data }) => {
         setLoader(false);
-        toast.info(data?.message || "Success");
+        toast.info(data?.result || "Success");
         handleUpdate(true);
         close();
       })
       .catch((err) => {
+        console.log(err);
         setLoader(false);
         toast.error(err?.response?.data?.message || "Error");
       });
@@ -70,7 +70,10 @@ function FormCreate({ handleUpdate, close, setLoader }) {
             withAsterisk
             label={input.label}
             placeholder={input.label}
-            data={input.data}
+            data={input.data?.map((element) => ({
+              ...element,
+              disabled: form.values.room_type_id === element.value,
+            }))}
             disabled={input.disabled}
             {...form.getInputProps(input.name)}
           />

@@ -22,7 +22,7 @@ const Admin = () => {
       getRequest("admin", user?.token)
         .then(({ data }) => {
           dispatch(setLoader(false));
-          dispatch(setAdmins(data?.innerData));
+          dispatch(setAdmins(data?.result));
         })
         .catch((err) => {
           dispatch(setLoader(false));

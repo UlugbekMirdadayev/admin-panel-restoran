@@ -4,11 +4,11 @@ import { BASE_URL } from "../utils/constants";
 const configuration = (token) => {
   return {
     validateStatus: function (status) {
-      if ([403,401].includes(status)) {
+      if ([403, 401].includes(status)) {
         localStorage.clear();
         window.location.href = "/login";
       }
-      return true;
+      return status >= 200 && status < 300;
     },
     headers: {
       Authorization: `Bearer ${token}`,
@@ -32,6 +32,10 @@ export const postRequest = (url, data = {}, token) => {
 export const patchRequest = (url, data = {}, token) => {
   const config = configuration(token);
   return token ? axios.patch(BASE_URL + url, data, config) : defaultRequest;
+};
+export const putRequest = (url, data = {}, token) => {
+  const config = configuration(token);
+  return token ? axios.put(BASE_URL + url, data, config) : defaultRequest;
 };
 export const deleteRequest = (url, token) => {
   const config = configuration(token);

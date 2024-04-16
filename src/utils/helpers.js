@@ -51,8 +51,7 @@ export const handleDelete = (url, setLoader, handleUpdate, token) => {
   deleteRequest(url, token)
     .then(({ data }) => {
       setLoader(false);
-      console.log(data);
-      toast.info(data?.message);
+      toast.info(data?.result);
       handleUpdate(true);
     })
     .catch((err) => {

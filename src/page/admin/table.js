@@ -11,7 +11,7 @@ export default function TableComponent({ data, setLoader, setAdmins }) {
     setLoader(true);
     patchRequest(`admin/activate/${id}`, {}, user?.token)
       .then(({ data: response }) => {
-        toast.info(response?.message);
+        toast.info(response?.result);
         setAdmins(
           data?.map((item) => {
             if (item?.id === id) {

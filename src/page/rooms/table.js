@@ -6,12 +6,13 @@ export default function TableComponent({ data, handleDelete }) {
   const rows = data?.map((element) => (
     <Table.Tr
       key={element?.id}
-      bg={element?.active ? "red" : undefined}
-      c={element?.active ? "#fff" : undefined}
+      bg={element?.is_active ? "red" : undefined}
+      c={element?.is_active ? "#fff" : undefined}
     >
-      <Table.Td>{element?.name}</Table.Td>
-      <Table.Td>{element?.active ? "Joy Band" : "Joy Band emas"}</Table.Td>
-      <Table.Td>{element?.afitsant_name}</Table.Td>
+      <Table.Td>
+        {element?.name} {element.room_type_name}
+      </Table.Td>
+      <Table.Td>{element?.is_active ? "Joy Band" : "Joy Band emas"}</Table.Td>
       <Table.Td>{element?.places}</Table.Td>
       <Table.Td>
         <Menu
@@ -22,16 +23,15 @@ export default function TableComponent({ data, handleDelete }) {
         >
           <Menu.Target>
             <Button
-              color={element?.active ? "#fff" : "red"}
-              c={element?.active ? "red" : undefined}
+              color={element?.is_active ? "#fff" : "red"}
+              c={element?.is_active ? "red" : undefined}
             >
-              <Trash fill={element?.active ? "red" : "#fff"} />{" "}
+              <Trash fill={element?.is_active ? "red" : "#fff"} />{" "}
               <Text fw={600} pl={10}>
                 O'chirish
               </Text>
             </Button>
           </Menu.Target>
-
           <Menu.Dropdown>
             <Menu.Label>O'chirishga rozimisiz</Menu.Label>
             <Menu.Divider />
@@ -59,7 +59,6 @@ export default function TableComponent({ data, handleDelete }) {
         <Table.Tr>
           <Table.Th>Xona/Stol raqami</Table.Th>
           <Table.Th>Status</Table.Th>
-          <Table.Th>Ofitsiant ismi</Table.Th>
           <Table.Th>Nechi kishilik</Table.Th>
           <Table.Th>O'chirish</Table.Th>
         </Table.Tr>
@@ -69,7 +68,9 @@ export default function TableComponent({ data, handleDelete }) {
           rows
         ) : (
           <Table.Tr>
-            <Table.Th ta="center" colSpan={5}>Ma'lumot yo'q</Table.Th>
+            <Table.Th ta="center" colSpan={5}>
+              Ma'lumot yo'q
+            </Table.Th>
           </Table.Tr>
         )}
       </Table.Tbody>

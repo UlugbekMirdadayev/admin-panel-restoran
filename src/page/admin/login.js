@@ -32,8 +32,6 @@ const Login = () => {
     post("auth/login", values)
       .then(({ data }) => {
         dispatch(setUser(data?.result));
-        localStorage.setItem("user-xadya", JSON.stringify(values));
-        localStorage.setItem("token-xadya", data?.result?.token);
         navigate("/", { replace: true });
       })
       .catch((err) => {

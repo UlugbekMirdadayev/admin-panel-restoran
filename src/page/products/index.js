@@ -22,10 +22,10 @@ const Product = () => {
     (update) => {
       if (!update && products?.length) return;
       dispatch(setLoader(true));
-      getRequest("product", user?.token)
+      getRequest("product/get", user?.token)
         .then(({ data }) => {
           dispatch(setLoader(false));
-          dispatch(setProducts(data?.innerData));
+          dispatch(setProducts(data?.result));
         })
         .catch((err) => {
           dispatch(setLoader(false));
@@ -65,7 +65,7 @@ const Product = () => {
         data={products}
         handleDelete={(id) =>
           handleDelete(
-            `product/${id}`,
+            `product/delete/${id}`,
             (boolean) => dispatch(setLoader(boolean)),
             handleOrders,
             user?.token

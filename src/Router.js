@@ -10,14 +10,10 @@ import Orders from "./page/orders";
 import Admin from "./page/admin";
 import Product from "./page/products";
 import Login from "./page/admin/login";
-import { toast } from "react-toastify";
-import { post } from "./services/api";
-import { setLoader } from "./redux/loaderSlice";
-import { useDispatch } from "react-redux";
-import { setUser } from "./redux/userSlice";
-import { setRooms } from "./redux/roomSlice";
-import io from "socket.io-client";
-const socket = io("wss://api.hadyacrm.uz");
+// import { setUser } from "./redux/userSlice";
+// import { setRooms } from "./redux/roomSlice";
+// import io from "socket.io-client";
+// const socket = io("wss://api.hadyacrm.uz");
 
 const routes = [
   {
@@ -53,7 +49,6 @@ const routes = [
 export default function App() {
   const navigate = useNavigate();
   const user = useUser();
-  const dispatch = useDispatch();
 
   const loading = useLoader();
   const { pathname } = useLocation();
@@ -64,39 +59,22 @@ export default function App() {
   );
 
   useEffect(() => {
-    if (user?.active !== 1) {
-      const values = JSON.parse(localStorage["user-xadya"] || "{}");
-      if (values?.phone) {
-        dispatch(setLoader(true));
-        post("admin/login", values)
-          .then(({ data }) => {
-            dispatch(setLoader(false));
-            dispatch(setUser(data?.innerData));
-            localStorage.setItem("token-xadya", data?.innerData?.token);
-          })
-          .catch((err) => {
-            dispatch(setLoader(false));
-            toast.error(err?.response?.data?.message || "Error");
-            navigate("/login", { replace: true });
-            localStorage.clear();
-          });
-      } else {
-        navigate("/login", { replace: true });
-      }
+    if (!user?.is_active && !["/login"].includes(pathname)) {
+      navigate("/login");
     }
-  }, [dispatch, navigate, user?.active]);
+  }, [user?.is_active, navigate, pathname]);
 
-  useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit("/rooms");
-      socket.on("/rooms", (data) => {
-        dispatch(setRooms(data));
-      });
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, [dispatch]);
+  // useEffect(() => {
+  //   socket.on("connect", () => {
+  //     socket.emit("/rooms");
+  //     socket.on("/rooms", (data) => {
+  //       dispatch(setRooms(data));
+  //     });
+  //   });
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [dispatch]);
 
   return (
     <Flex maw={"100vw"} gap={20} gutter={0}>
