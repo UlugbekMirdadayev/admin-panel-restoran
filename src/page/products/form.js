@@ -10,10 +10,11 @@ import {
 import { useForm } from "@mantine/form";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { postRequest } from "../../services/api";
 import { useDispatch } from "react-redux";
+import { postRequest } from "../../services/api";
 import { setLoader } from "../../redux/loaderSlice";
 import { useCategories, useMeasurements, useUser } from "../../redux/selectors";
+import { IMAGE_URL } from "../../utils/constants";
 
 const inputs = [
   {
@@ -34,29 +35,31 @@ const inputs = [
   },
 ];
 
-function FormCreate({ handleOrders, close }) {
+function FormCreate({ handleOrders, close, editForm, setEditForm }) {
   const user = useUser();
   const dispatch = useDispatch();
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(
+    editForm?.image_path ? IMAGE_URL + editForm?.image_path : null
+  );
   const categories = useCategories();
   const measurements = useMeasurements();
 
   const form = useForm({
     initialValues: {
-      category_id: String(categories[0]?.id),
-      measurement_id: String(measurements[0]?.id),
-      name: "",
-      price: "",
+      category_id: String(editForm?.category?.id || categories[0]?.id),
+      measurement_id: String(editForm?.measurement?.id || measurements[0]?.id),
+      name: editForm?.name || "",
       photo: image,
-      is_infinite: false,
-      quantity: "",
-      body_price: "",
-      sell_price: "",
+      is_infinite: String(editForm?.is_infinite || "false"),
+      quantity: editForm?.quantity || "",
+      body_price: editForm?.body_price || "",
+      sell_price: editForm?.sell_price || "",
     },
   });
 
   const onSubmit = (values) => {
     if (!values.photo) return toast.info("Rasm yuklang !");
+    values.is_infinite === "true" && delete values.quantity;
     const formData = new FormData();
     Object.keys(values).map((key) =>
       formData.append(
@@ -64,6 +67,50 @@ function FormCreate({ handleOrders, close }) {
         typeof values[key] === "string" ? values[key]?.trim() : values[key]
       )
     );
+    const editedInputs = Object.keys(values).filter((key) => {
+      if (key === "category_id") {
+        String(editForm["category"]?.id) === values[key] &&
+          formData.delete("category_id");
+        return String(editForm["category"]?.id) !== values[key];
+      }
+      if (key === "measurement_id") {
+        String(editForm["measurement"]?.id) === values[key] &&
+          formData.delete("measurement_id");
+        return String(editForm["measurement"]?.id) !== values[key];
+      }
+      if (key === "is_infinite" && editForm.is_infinite === undefined)
+        return false;
+      if (key === "photo" && !editForm.image_path) return true;
+      editForm[key] === values[key] && formData.delete(key);
+      return editForm[key] !== values[key] && key !== "photo";
+    });
+
+    if (!editedInputs.length)
+      return toast.info("O'zgartirishlar kiritilmadi !");
+    if (editForm?.id) {
+      formData.append("product_id", editForm.id);
+      formData.append("_method", "PUT");
+      formData.delete("is_infinite");
+
+      if (editForm?.image_path) {
+        formData.delete("photo");
+      }
+
+      dispatch(setLoader(true));
+      postRequest("product/update", formData, user?.token)
+        .then(({ data }) => {
+          dispatch(setLoader(false));
+          toast.success(data?.result);
+          handleOrders(true);
+          close();
+          setEditForm({});
+        })
+        .catch((err) => {
+          dispatch(setLoader(false));
+          toast.error(err?.response?.data?.result);
+        });
+      return;
+    }
     dispatch(setLoader(true));
     postRequest("product/create", formData, user?.token)
       .then(({ data }) => {
@@ -71,10 +118,11 @@ function FormCreate({ handleOrders, close }) {
         toast.success(data?.result);
         handleOrders(true);
         close();
+        setEditForm({});
       })
       .catch((err) => {
         dispatch(setLoader(false));
-        toast.error(err?.response?.data?.message);
+        toast.error(err?.response?.data?.result);
       });
   };
 
@@ -83,10 +131,6 @@ function FormCreate({ handleOrders, close }) {
       <form onSubmit={form.onSubmit(onSubmit)}>
         <FileInput
           required
-          onChange={(object) => {
-            const objectURL = URL.createObjectURL(object);
-            setImage(objectURL);
-          }}
           label={
             image ? (
               <Image
@@ -95,18 +139,36 @@ function FormCreate({ handleOrders, close }) {
                   width: 120,
                   height: 120,
                   objectFit: "contain",
+                  flex: 1,
+                  margin: " 0 auto",
                 }}
               />
             ) : (
               "Rasm"
             )
           }
+          styles={{
+            label: {
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            },
+          }}
           description="Rasm tanlang"
           placeholder="Rasm tanlang"
           accept="image/*"
           {...form.getInputProps("photo")}
+          onChange={(object) => {
+            setEditForm({
+              ...editForm,
+              image_path: null,
+            });
+            const objectURL = URL.createObjectURL(object);
+            setImage(objectURL);
+            form.getInputProps("photo").onChange(object);
+          }}
         />
-        {inputs.map((input) => (
+        {inputs?.map((input) => (
           <TextInput
             key={input.name}
             mt={"md"}
@@ -115,9 +177,30 @@ function FormCreate({ handleOrders, close }) {
             label={input.label}
             placeholder={input.label}
             onInput={input.typingChange}
+            disabled={
+              input.name === "quantity" && form.values.is_infinite === "true"
+            }
             {...form.getInputProps(input.name)}
           />
         ))}
+        <Select
+          required
+          mt={"md"}
+          label="O'lchov birligi"
+          data={[
+            {
+              value: "true",
+              label: "Cheksiz",
+              disabled: form.values.is_infinite === "true",
+            },
+            {
+              value: "false",
+              label: "Chegaralanadi",
+              disabled: form.values.is_infinite === "false",
+            },
+          ]}
+          {...form.getInputProps("is_infinite")}
+        />
         <Select
           required
           mt={"md"}

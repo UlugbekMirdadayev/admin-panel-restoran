@@ -23,11 +23,11 @@ const Waiter = () => {
       getRequest("user/get", user?.token)
         .then(({ data }) => {
           dispatch(setLoader(false));
-          dispatch(setWaiters(data?.result));
+          dispatch(setWaiters(data?.result?.filter((item) => item?.role !== 1)));
         })
         .catch((err) => {
           dispatch(setLoader(false));
-          toast.error(err?.response?.data?.message || "Error");
+          toast.error(err?.response?.data?.result || "Error");
         });
     },
     [dispatch, waiters?.length, user?.token]

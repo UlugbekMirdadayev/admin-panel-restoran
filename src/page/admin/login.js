@@ -35,7 +35,7 @@ const Login = () => {
         navigate("/", { replace: true });
       })
       .catch((err) => {
-        toast.error(err?.response?.data?.message || "Error");
+        toast.error(err?.response?.data?.result || "Error");
       })
       .finally(() => {
         dispatch(setLoader(false));

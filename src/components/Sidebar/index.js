@@ -5,27 +5,25 @@ import { useDispatch } from "react-redux";
 import classes from "./style.module.css";
 import { setUser } from "../../redux/userSlice";
 import {
-  AdminIcon,
   Dashboard,
-  Globus,
   Pizza,
-  OrderIcon,
   CopyBoard,
   Room,
   LogOut,
+  CategoryIcon,
 } from "../icon";
-import { getRequest } from "../../services/api";
+import { getRequest, postRequest } from "../../services/api";
 import { useUser } from "../../redux/selectors";
 import { setCategories } from "../../redux/categoriesSlice";
 import { setMeasurements } from "../../redux/measurementSlice";
+import { toast } from "react-toastify";
 
 const tabs = [
   { link: "/", label: "Hisobotlar", icon: Dashboard },
-  { link: "/live-orders", label: "Aktiv buyurtmalar", icon: OrderIcon },
   { link: "/waiter", label: "Ofitsiant", icon: CopyBoard },
+  { link: "/categories", label: "Kategoriyalar", icon: CategoryIcon },
   { link: "/products", label: "Maxsulotlar", icon: Pizza },
   { link: "/rooms", label: "Xonalar/Stollar", icon: Room },
-  { link: "/admin-create", label: "Ish Boshqaruvchilar", icon: AdminIcon },
 ];
 
 export default function Sidebar() {
@@ -75,9 +73,16 @@ export default function Sidebar() {
   ));
 
   const handleLogout = () => {
-    dispatch(setUser({}));
-    navigate("/login", { replace: true });
-    localStorage.clear();
+    postRequest("auth/logout", {}, user?.token)
+      .then(({ data }) => {
+        toast.info(data?.result);
+        dispatch(setUser({}));
+        navigate("/login", { replace: true });
+        localStorage.clear();
+      })
+      .catch((err) => {
+        console.log(err, "err");
+      });
   };
 
   return (
@@ -89,16 +94,6 @@ export default function Sidebar() {
       </NavLink>
       <div className={classes.navbarMain}>
         {links}
-        <a
-          href="link to your website"
-          onClick={(e) => e.preventDefault()}
-          target="_blank"
-          rel="noreferrer"
-          className={classes.link}
-        >
-          <Globus />
-          <span>Web-sahifa</span>
-        </a>
         <Menu position="right-start" width={"100px"}>
           <Menu.Target>
             <Button w={"100%"} py={"5px"} h={"auto"} mt={80} bg={"red"}>

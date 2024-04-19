@@ -3,17 +3,19 @@ import { Button, Flex, Image, Menu, Table, Text } from "@mantine/core";
 import { formatCurrencyUZS } from "../../utils/helpers";
 import ModalScreen from "../../components/modal";
 import { Eye, Trash, Reload } from "../../components/icon";
+import { IMAGE_URL } from "../../utils/constants";
 
-export default function TableComponent({ data, handleDelete }) {
+export default function TableComponent({ data, handleDelete, setEditForm }) {
   const [image, setImage] = useState(null);
   const rows = data?.map((element) => (
     <Table.Tr key={element?.id}>
       <Table.Td>{element?.name}</Table.Td>
       <Table.Td>{formatCurrencyUZS(element?.sell_price)}</Table.Td>
       <Table.Td>{element?.category?.name}</Table.Td>
+      <Table.Td>{element?.quantity ? element?.quantity : "Cheksiz"}</Table.Td>
       <Table.Td
         onClick={() =>
-          setImage("https://epos-admin.dadabayev.uz/" + element?.image_path)
+          setImage(IMAGE_URL + element?.image_path)
         }
       >
         <ModalScreen
@@ -58,7 +60,12 @@ export default function TableComponent({ data, handleDelete }) {
             <Menu.Item>Yo'q , keyinroq</Menu.Item>
           </Menu.Dropdown>
         </Menu>
-        <Button mx={"md"} display={"flex"} align={"center"}>
+        <Button
+          onClick={() => setEditForm(element)}
+          mx={"md"}
+          display={"flex"}
+          align={"center"}
+        >
           <Reload fill="#fff" /> <Text pl={10}>Maxsulotni yangilash</Text>
         </Button>
       </Table.Td>
@@ -80,6 +87,7 @@ export default function TableComponent({ data, handleDelete }) {
           <Table.Th>Maxsulot nomi</Table.Th>
           <Table.Th>Maxsulot narxi</Table.Th>
           <Table.Th>Maxsulot turi</Table.Th>
+          <Table.Th>Maxsulot soni</Table.Th>
           <Table.Th>Rasmi</Table.Th>
           <Table.Th>O'chirish</Table.Th>
         </Table.Tr>

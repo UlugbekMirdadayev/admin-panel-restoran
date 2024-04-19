@@ -4,8 +4,6 @@ import report from "./reportSlice";
 import loader from "./loaderSlice";
 import waiters from "./waiterSlice";
 import rooms from "./roomSlice";
-import orders from "./orderSlice";
-import admin from "./adminSlice";
 import products from "./productSlice";
 import categories from "./categoriesSlice";
 import measurements from "./measurementSlice";
@@ -17,11 +15,9 @@ const store = configureStore({
     loader,
     waiters,
     rooms,
-    orders,
-    admin,
     products,
     categories,
-    measurements
+    measurements,
   },
 });
 

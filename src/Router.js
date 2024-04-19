@@ -1,19 +1,20 @@
 import React, { useEffect, useMemo } from "react";
-import { useNavigate, Route, Routes, useLocation } from "react-router-dom";
+import {
+  useNavigate,
+  Route,
+  Routes,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./page/dashboard";
 import { Box, Center, Flex, Loader } from "@mantine/core";
 import { useLoader, useUser } from "./redux/selectors";
 import Waiter from "./page/waiter";
 import Room from "./page/rooms";
-import Orders from "./page/orders";
-import Admin from "./page/admin";
 import Product from "./page/products";
 import Login from "./page/admin/login";
-// import { setUser } from "./redux/userSlice";
-// import { setRooms } from "./redux/roomSlice";
-// import io from "socket.io-client";
-// const socket = io("wss://api.hadyacrm.uz");
+import Category from "./page/category";
 
 const routes = [
   {
@@ -25,6 +26,10 @@ const routes = [
     element: <Waiter />,
   },
   {
+    path: "/categories",
+    element: <Category />,
+  },
+  {
     path: "/rooms",
     element: <Room />,
   },
@@ -33,16 +38,12 @@ const routes = [
     element: <Product />,
   },
   {
-    path: "/live-orders",
-    element: <Orders />,
-  },
-  {
-    path: "/admin-create",
-    element: <Admin />,
-  },
-  {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "*",
+    element: <Navigate to="/login" />,
   },
 ];
 

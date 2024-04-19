@@ -1,51 +1,43 @@
-import { Box, Button, Group, NumberInput, Select } from "@mantine/core";
+import { Box, Button, Group, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { postRequest } from "../../services/api";
+import { postRequest, putRequest } from "../../services/api";
 import { toast } from "react-toastify";
 import { useUser } from "../../redux/selectors";
 
 const inputs = [
   {
     name: "name",
-    label: "Xona/Stol raqami",
-    as: NumberInput,
-  },
-  {
-    name: "places",
-    label: "Nechi kishilik",
-    as: NumberInput,
-  },
-  {
-    name: "room_type_id",
-    label: "Joy turi",
-    as: Select,
-    data: [
-      {
-        value: "1",
-        label: "Xona",
-      },
-      {
-        value: "2",
-        label: "Stol",
-      },
-    ],
-    disabled: false,
+    label: "Kategoriya nomi",
+    as: TextInput,
   },
 ];
 
-function FormCreate({ handleUpdate, close, setLoader }) {
+function FormCreate({ handleUpdate, close, setLoader, editForm }) {
   const user = useUser();
   const form = useForm({
     initialValues: {
-      name: "",
-      places: "",
-      room_type_id: "1",
+      name: editForm?.name || "",
     },
   });
 
   const onSubmit = (values) => {
     setLoader(true);
-    postRequest("room/create", values, user?.token)
+    if (editForm) {
+      values.id = editForm?.id;
+      return putRequest("category/update", values, user?.token)
+        .then(({ data }) => {
+          setLoader(false);
+          toast.info(data?.result || "Success");
+          handleUpdate(true);
+          close();
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoader(false);
+          toast.error(err?.response?.data?.resultresult || "Error");
+        });
+    }
+    postRequest("category/create", values, user?.token)
       .then(({ data }) => {
         setLoader(false);
         toast.info(data?.result || "Success");
@@ -70,10 +62,6 @@ function FormCreate({ handleUpdate, close, setLoader }) {
             withAsterisk
             label={input.label}
             placeholder={input.label}
-            data={input.data?.map((element) => ({
-              ...element,
-              disabled: form.values.room_type_id === element.value,
-            }))}
             disabled={input.disabled}
             {...form.getInputProps(input.name)}
           />

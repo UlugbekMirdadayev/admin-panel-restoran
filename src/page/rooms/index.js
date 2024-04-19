@@ -29,7 +29,7 @@ const Room = () => {
         })
         .catch((err) => {
           dispatch(setLoader(false));
-          toast.error(err?.response?.data?.message || "Error");
+          toast.error(err?.response?.data?.result || "Error");
         });
     },
     [dispatch, rooms?.length, user?.token]
