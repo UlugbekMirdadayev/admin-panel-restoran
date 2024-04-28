@@ -6,6 +6,7 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./page/dashboard";
 import { Box, Center, Flex, Loader } from "@mantine/core";
@@ -15,6 +16,10 @@ import Room from "./page/rooms";
 import Product from "./page/products";
 import Login from "./page/admin/login";
 import Category from "./page/category";
+import AdminsPage from "./page/admins";
+import { setRooms } from "./redux/roomSlice";
+
+const SOCKET_SERVER_URL = "ws://epos-admin.dadabayev.uz:8887/";
 
 const routes = [
   {
@@ -24,6 +29,10 @@ const routes = [
   {
     path: "/waiter",
     element: <Waiter />,
+  },
+  {
+    path: "/admins",
+    element: <AdminsPage />,
   },
   {
     path: "/categories",
@@ -48,6 +57,7 @@ const routes = [
 ];
 
 export default function App() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useUser();
 
@@ -65,17 +75,35 @@ export default function App() {
     }
   }, [user?.is_active, navigate, pathname]);
 
-  // useEffect(() => {
-  //   socket.on("connect", () => {
-  //     socket.emit("/rooms");
-  //     socket.on("/rooms", (data) => {
-  //       dispatch(setRooms(data));
-  //     });
-  //   });
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [dispatch]);
+  useEffect(() => {
+    const socket = new WebSocket(SOCKET_SERVER_URL); // Replace with your WebSocket server URL
+
+    socket.onopen = () => {
+      console.log("Connected to WebSocket server");
+
+      const message = JSON.stringify({
+        method: "createUser",
+        ownerId: user?.id, // Replace $owner_id with the actual owner ID value
+      });
+
+      socket.send(message);
+    };
+
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event?.data || "{}");
+      console.log(message);
+      if (message?.method === "updateRooms") {
+        dispatch(setRooms(message?.rooms));
+      }
+    };
+
+    socket.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+    };
+    return () => {
+      socket.close();
+    };
+  }, [user?.id, dispatch]);
 
   return (
     <Flex maw={"100vw"} gap={20} gutter={0}>

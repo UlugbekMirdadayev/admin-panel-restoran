@@ -1,41 +1,47 @@
 import React, { useCallback, useEffect } from "react";
 import TableComponent from "./table";
-import { useUser, useWaiter } from "../../redux/selectors";
+import { useUser, useAdmins } from "../../redux/selectors";
 import { useDispatch } from "react-redux";
 import { setLoader } from "../../redux/loaderSlice";
 import { getRequest } from "../../services/api";
 import { toast } from "react-toastify";
 import { Button, Flex, Title } from "@mantine/core";
-import { setWaiters } from "../../redux/waiterSlice";
+import { setAdmins } from "../../redux/adminSlice";
 import { handleDelete } from "../../utils/helpers";
 import { Reload } from "../../components/icon";
 
-const Waiter = () => {
+const AdminsPage = () => {
   const user = useUser();
-  const waiters = useWaiter();
+  const admins = useAdmins();
 
   const dispatch = useDispatch();
 
-  const handleGetWaiters = useCallback(
+  const handleGetAdmins = useCallback(
     (update) => {
-      if (!update && waiters?.length) return;
+      if (!update && admins?.length) return;
       dispatch(setLoader(true));
       getRequest("user/get", user?.token)
         .then(({ data }) => {
           dispatch(setLoader(false));
-          dispatch(setWaiters(data?.result?.filter((item) => item?.role !== 1)));
+          dispatch(
+            setAdmins(
+              data?.result?.filter(
+                (item) => item?.role === 1 && user?.id !== item?.id
+              )
+            )
+          );
         })
         .catch((err) => {
           dispatch(setLoader(false));
           toast.error(err?.response?.data?.result || "Error");
         });
     },
-    [dispatch, waiters?.length, user?.token]
+    [dispatch, admins?.length, user?.token, user?.id]
   );
 
   useEffect(() => {
-    handleGetWaiters();
-  }, [handleGetWaiters]);
+    handleGetAdmins();
+  }, [handleGetAdmins]);
 
   return (
     <div className="container-page">
@@ -47,8 +53,8 @@ const Waiter = () => {
         top={0}
         bg={"#fff"}
       >
-        <Title>Ofitsiantlar</Title>
-        <Button onClick={() => handleGetWaiters(true)}>
+        <Title>Adminlar</Title>
+        <Button onClick={() => handleGetAdmins(true)}>
           <Flex align={"center"} gap={10}>
             <Reload fill="#fff" />
             <span>Ma'lumotlarni Yangilash</span>
@@ -56,21 +62,21 @@ const Waiter = () => {
         </Button>
       </Flex>
       <TableComponent
-        data={waiters}
-        setWaiters={(data) => dispatch(setWaiters(data))}
+        data={admins}
+        setWaiters={(data) => dispatch(setAdmins(data))}
         setLoader={(boolean) => dispatch(setLoader(boolean))}
         handleDelete={(id) =>
           handleDelete(
             `afitsant/${id}`,
             (boolean) => dispatch(setLoader(boolean)),
-            handleGetWaiters,
+            handleGetAdmins,
             user?.token
           )
         }
-        handleUpdate={handleGetWaiters}
+        handleUpdate={handleGetAdmins}
       />
     </div>
   );
 };
 
-export default Waiter;
+export default AdminsPage;

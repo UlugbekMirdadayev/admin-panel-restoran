@@ -31,8 +31,12 @@ const Login = () => {
     dispatch(setLoader(true));
     post("auth/login", values)
       .then(({ data }) => {
-        dispatch(setUser(data?.result));
-        navigate("/", { replace: true });
+        if (data?.result?.role === 1) {
+          dispatch(setUser(data?.result));
+          navigate("/", { replace: true });
+        } else {
+          toast.error("Siz admin sifatida kirish uchun ruxsat etilmadingiz");
+        }
       })
       .catch((err) => {
         toast.error(err?.response?.data?.result || "Error");

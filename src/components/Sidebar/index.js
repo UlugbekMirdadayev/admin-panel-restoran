@@ -11,6 +11,7 @@ import {
   Room,
   LogOut,
   CategoryIcon,
+  UsersIcon,
 } from "../icon";
 import { getRequest, postRequest } from "../../services/api";
 import { useUser } from "../../redux/selectors";
@@ -21,6 +22,7 @@ import { toast } from "react-toastify";
 const tabs = [
   { link: "/", label: "Hisobotlar", icon: Dashboard },
   { link: "/waiter", label: "Ofitsiant", icon: CopyBoard },
+  { link: "/admins", label: "Ish boshqaruvchilar", icon: UsersIcon },
   { link: "/categories", label: "Kategoriyalar", icon: CategoryIcon },
   { link: "/products", label: "Maxsulotlar", icon: Pizza },
   { link: "/rooms", label: "Xonalar/Stollar", icon: Room },
