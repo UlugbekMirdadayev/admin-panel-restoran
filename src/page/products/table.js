@@ -10,14 +10,13 @@ export default function TableComponent({ data, handleDelete, setEditForm }) {
   const rows = data?.map((element) => (
     <Table.Tr key={element?.id}>
       <Table.Td>{element?.name}</Table.Td>
+      <Table.Td>{formatCurrencyUZS(element?.body_price)}</Table.Td>
       <Table.Td>{formatCurrencyUZS(element?.sell_price)}</Table.Td>
       <Table.Td>{element?.category?.name}</Table.Td>
-      <Table.Td>{element?.quantity ? element?.quantity : "Cheksiz"}</Table.Td>
-      <Table.Td
-        onClick={() =>
-          setImage(IMAGE_URL + element?.image_path)
-        }
-      >
+      <Table.Td>
+        {element?.is_infinite ? "Cheksiz" : element?.quantity}
+      </Table.Td>
+      <Table.Td onClick={() => setImage(IMAGE_URL + element?.image_path)}>
         <ModalScreen
           title={"Product rasmi"}
           btn_title={
@@ -85,7 +84,8 @@ export default function TableComponent({ data, handleDelete, setEditForm }) {
       <Table.Thead>
         <Table.Tr>
           <Table.Th>Maxsulot nomi</Table.Th>
-          <Table.Th>Maxsulot narxi</Table.Th>
+          <Table.Th>Maxsulot tan narxi</Table.Th>
+          <Table.Th>Maxsulot sotilish narxi</Table.Th>
           <Table.Th>Maxsulot turi</Table.Th>
           <Table.Th>Maxsulot soni</Table.Th>
           <Table.Th>Rasmi</Table.Th>

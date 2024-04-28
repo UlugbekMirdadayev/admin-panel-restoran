@@ -107,7 +107,7 @@ function FormCreate({ handleOrders, close, editForm, setEditForm }) {
         })
         .catch((err) => {
           dispatch(setLoader(false));
-          toast.error(err?.response?.data?.result);
+          toast.error(JSON.stringify(err?.response?.data));
         });
       return;
     }
@@ -122,7 +122,7 @@ function FormCreate({ handleOrders, close, editForm, setEditForm }) {
       })
       .catch((err) => {
         dispatch(setLoader(false));
-        toast.error(err?.response?.data?.result);
+        toast.error(JSON.stringify(err?.response?.data));
       });
   };
 
