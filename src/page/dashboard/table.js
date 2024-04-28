@@ -1,5 +1,4 @@
-import React from //  useRef,
-"react";
+import React from "react"; //  useRef,
 import {
   //  Button,
   Table,
@@ -194,8 +193,14 @@ export default function TableComponent({ data, user, setLoader }) {
             <Table.Th colSpan={5}></Table.Th>
           </Table.Tr>
           <Table.Tr>
-            <Table.Th>Umumiy summa</Table.Th>
-            <Table.Th>{formatCurrencyUZS(data?.total_turnover)}</Table.Th>
+            <Table.Th>
+              Umumiy summa: {formatCurrencyUZS(data?.total_turnover)}
+            </Table.Th>
+            <Table.Th>
+              Umumiy foyda: {formatCurrencyUZS(data?.total_profit)}
+            </Table.Th>
+            <Table.Th>Jami zarar: {data?.total_damage}</Table.Th>
+            <Table.Th>Jami buyurtmalar: {data?.total_cheque}</Table.Th>
           </Table.Tr>
         </Table.Tfoot>
       ) : null}
