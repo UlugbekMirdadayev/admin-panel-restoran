@@ -1,147 +1,178 @@
-import React from "react"; //  useRef,
-import {
-  //  Button,
-  Table,
-} from "@mantine/core";
+import React, { useRef, useState } from "react"; //  useRef,
+import { Button, Table } from "@mantine/core";
 import moment from "moment";
 import { formatCurrencyUZS } from "../../utils/helpers";
+import { Eye } from "../../components/icon";
+import { getRequest } from "../../services/api";
+// import { useReactToPrint } from "react-to-print";
+import { toast } from "react-toastify";
 // import { useReactToPrint } from "react-to-print";
 // import { getRequest } from "../../services/api";
 // import { toast } from "react-toastify";
 
-export default function TableComponent({ data, user, setLoader }) {
-  // const TableCheck = ({ data }) => {
-  //   const [open, setOpen] = useState(false);
-  //   const [order, setOrder] = useState({});
-  //   const componentRef = useRef();
-  //   const handlePrint = useReactToPrint({
-  //     content: () => componentRef.current,
-  //     onAfterPrint: () => setOpen(false),
-  //     onBeforePrint: () => setOpen(true),
-  //   });
-  //   const getById = () => {
-  //     setLoader(true);
-  //     getRequest(`/order/${data?.id}`, user?.token)
-  //       .then(({ data }) => {
-  //         setLoader(false);
-  //         setOrder(data?.result);
-  //         setOpen(true);
-  //       })
-  //       .catch((err) => {
-  //         toast.info("Check chiqarishda xatolik, Keyinroq urinib ko'ring");
-  //         setLoader(false);
-  //         console.log(err, "err");
-  //       });
-  //   };
-  //   return (
-  //     <>
-  //       <Button onClick={getById}>Check chiqarish</Button>
-  //       <div
-  //         className="modal-print"
-  //         style={{ display: `${open ? "flex" : "none"}` }}
-  //       >
-  //         <div>
-  //           <Button w={"100%"} mt={"lg"} onClick={() => setOpen(false)}>
-  //             Orqaga
-  //           </Button>
-  //           <div className="cheque" ref={componentRef}>
-  //             <div className="print-body">
-  //               <p className="title-text">Sizning tartib raqamingiz</p>
-  //               <h1>{order?.id}</h1>
-  //               <p>
-  //                 Ochilgan vaqti{" "}
-  //                 {moment(order?.created_at).format("HH:mm  DD.MM.YYYY")}
-  //               </p>
-  //               <table className="table">
-  //                 <thead>
-  //                   <tr>
-  //                     <th className="left">Nomi</th>
-  //                     <th>Soni</th>
-  //                     <th className="right">Narxi</th>
-  //                   </tr>
-  //                 </thead>
-  //                 <tbody>
-  //                   {order?.products?.length
-  //                     ? order?.products?.map((prod) => (
-  //                         <tr key={prod?.id}>
-  //                           <td className="left">{prod?.product_name}</td>
-  //                           <td>{prod?.product_quantity}</td>
-  //                           <td className="right">
-  //                             {formatCurrencyUZS(prod?.product_price)}
-  //                           </td>
-  //                         </tr>
-  //                       ))
-  //                     : null}
-  //                 </tbody>
+export default function TableComponent({ data, user }) {
+  const TableCheck = ({ data }) => {
+    const [open, setOpen] = useState(false);
+    const [order, setOrder] = useState({});
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [isPrintLoading, setIsPrintLoading] = useState(false);
+    const componentRef = useRef();
+    const handlePrint = () => {
+      setIsPrintLoading(true);
+      getRequest(`room/print/${order?.room_id}`, user?.token)
+        .then(({ data }) => {
+          console.log(data, "data");
+          setIsPrintLoading(false);
+          toast.success("Print qilindi");
+          setOpen(false);
+        })
+        .catch((err) => {
+          setIsPrintLoading(false);
+          console.log(err, "err");
+          toast.error("Xatolik yuz berdi");
+        });
+    };
+    // useReactToPrint({
+    //   content: () => componentRef.current,
+    //   onAfterPrint: () => setOpen(false),
+    //   onBeforePrint: () => setOpen(true),
+    // });
+    const getById = () => {
+      setLoading(true);
+      getRequest(`order/detail/${data?.id}`, user?.token)
+        .then(({ data }) => {
+          setLoading(false);
+          setOrder(data?.result?.order);
+          setProducts(data?.result?.products);
+          setOpen(true);
+        })
+        .catch((err) => {
+          setLoading(false);
+          console.log(err, "err");
+          toast.error("Xatolik yuz berdi");
+        });
+    };
+    return (
+      <>
+        <Button
+          align={"center"}
+          gap={10}
+          loading={loading}
+          disabled={loading}
+          onClick={getById}
+        >
+          <Eye />
+        </Button>
+        <div
+          className="modal-print"
+          style={{ display: `${open ? "flex" : "none"}` }}
+        >
+          <div>
+            <Button w={"100%"} mt={"lg"} onClick={() => setOpen(false)}>
+              Orqaga
+            </Button>
+            <div className="cheque" ref={componentRef}>
+              <div className="print-body">
+                <p className="title-text">Sizning tartib raqamingiz</p>
+                <h1>{order?.id}</h1>
+                <p>
+                  Ochilgan vaqti{" "}
+                  {moment(order?.created_at).format("HH:mm  DD.MM.YYYY")}
+                </p>
+                <div className="table">
+                  <strong>Buyurtma</strong>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th className="left">Nomi</th>
+                        <th>Soni</th>
+                        <th className="right">Narxi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products?.length
+                        ? products?.map((prod) => (
+                            <tr key={prod?.id}>
+                              <td className="left">{prod?.name}</td>
+                              <td>{prod?.quantity}</td>
+                              <td className="right">
+                                {formatCurrencyUZS(prod?.sell_price)}
+                              </td>
+                            </tr>
+                          ))
+                        : null}
+                    </tbody>
 
-  //                 <tfoot>
-  //                   <tr>
-  //                     <th colSpan={3}>
-  //                       <hr />
-  //                     </th>
-  //                   </tr>
-  //                   <tr>
-  //                     <td className="left" colSpan={2}>
-  //                       Umumiy summa
-  //                     </td>
-  //                     <td className="right">
-  //                       {formatCurrencyUZS(data?.total_price)}
-  //                     </td>
-  //                   </tr>
+                    <tfoot>
+                      <tr>
+                        <th colSpan={3}>
+                          <hr />
+                        </th>
+                      </tr>
+                      <tr>
+                        <td className="left" colSpan={2}>
+                          Umumiy summa
+                        </td>
+                        <td className="right">
+                          {formatCurrencyUZS(order?.total)}
+                        </td>
+                      </tr>
 
-  //                   <tr>
-  //                     <th className="left" colSpan={2}>
-  //                       Xizmat haqi ({percent}%)
-  //                     </th>
-  //                     <th className="right">
-  //                       {formatCurrencyUZS(
-  //                         calculatePercentage(data?.total_price, percent)
-  //                       )}
-  //                     </th>
-  //                   </tr>
-  //                   <tr>
-  //                     <th className="left" colSpan={2}>
-  //                       Jami + ofitsant
-  //                     </th>
-  //                     <th className="right">
-  //                       {formatCurrencyUZS(
-  //                         +data?.total_price +
-  //                           +calculatePercentage(data?.total_price, percent)
-  //                       )}
-  //                     </th>
-  //                   </tr>
-  //                   <tr>
-  //                     <td className="left" colSpan={3}>
-  //                       Olib ketish xizmati
-  //                     </td>
-  //                   </tr>
-  //                   <tr>
-  //                     <td className="left" colSpan={3}>
-  //                       Yetkazib berish ximati
-  //                     </td>
-  //                   </tr>
-  //                   <tr>
-  //                     <td className="left" colSpan={3}>
-  //                       +998 91 184 30 04
-  //                     </td>
-  //                   </tr>
-  //                   <tr>
-  //                     <td className="left" colSpan={3}>
-  //                       Bizni tanlaganingiz uchun raxmat!
-  //                     </td>
-  //                   </tr>
-  //                 </tfoot>
-  //               </table>
-  //               <Button w={"100%"} mt={"lg"} onClick={handlePrint}>
-  //                 Check chiqarish
-  //               </Button>
-  //             </div>
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </>
-  //   );
-  // };
+                      <tr>
+                        <th className="left" colSpan={2}>
+                          Xizmat haqi 10%
+                        </th>
+                        <th className="right">
+                          {formatCurrencyUZS(order?.total * 0.1)}
+                        </th>
+                      </tr>
+                      <tr>
+                        <th className="left" colSpan={2}>
+                          Jami + ofitsant
+                        </th>
+                        <th className="right">
+                          {formatCurrencyUZS(order?.total * 1.1)}
+                        </th>
+                      </tr>
+                      <tr>
+                        <td className="left" colSpan={3}>
+                          Olib ketish xizmati
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="left" colSpan={3}>
+                          Yetkazib berish ximati
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="left" colSpan={3}>
+                          +998 99 888 77 66
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="left" colSpan={3}>
+                          Bizni tanlaganingiz uchun raxmat!
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+                <Button
+                  w={"100%"}
+                  mt={"lg"}
+                  onClick={handlePrint}
+                  loading={isPrintLoading}
+                >
+                  Check chiqarish
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
   const rows = data?.orders?.map((element) => (
     <Table.Tr key={element?.id}>
       <Table.Td>{element?.room_name}</Table.Td>
@@ -150,9 +181,9 @@ export default function TableComponent({ data, user, setLoader }) {
       <Table.Td>
         {moment(element?.created_at).format("DD-MM-YYYY HH:mm")}
       </Table.Td>
-      {/* <Table.Td>
+      <Table.Td>
         <TableCheck data={element} />
-      </Table.Td> */}
+      </Table.Td>
     </Table.Tr>
   ));
 

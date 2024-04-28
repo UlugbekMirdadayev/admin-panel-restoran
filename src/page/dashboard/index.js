@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect } from "react";
-import { Button, Flex, Title } from "@mantine/core";
-// import { DatePickerInput } from "@mantine/dates";
-// import moment from "moment";
+import React, { useCallback, useEffect, useState } from "react";
+import { Button, Flex, Select, Text, Title } from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
+import moment from "moment";
 import { useDispatch } from "react-redux";
 import TableComponent from "./table";
-import { useReport, useUser } from "../../redux/selectors";
+import { useReport, useUser, useWaiter } from "../../redux/selectors";
 import { setLoader } from "../../redux/loaderSlice";
 import { postRequest } from "../../services/api";
 import { setReport } from "../../redux/reportSlice";
@@ -12,23 +12,24 @@ import { Reload } from "../../components/icon";
 
 const Dashboard = () => {
   const user = useUser();
+  const waiters = useWaiter();
   const dispatch = useDispatch();
-  // const [isTodayData, setIsTodayData] = useState(false);
-  // const [value, setValue] = useState([
-  //   new Date(new Date().setDate(new Date().getDate() - 7)),
-  //   new Date(),
-  // ]);
-  // const [department, setDepartment] = useState({
-  //   label: "Afitsantlar",
-  //   value: "0",
-  // });
+  const [isTodayData, setIsTodayData] = useState(false);
+  const [value, setValue] = useState([
+    new Date(new Date().setDate(new Date().getDate() - 7)),
+    new Date(),
+  ]);
+  const [isWaiter, setIsWaiter] = useState({
+    id: "all",
+    full_name: "",
+  });
   const report = useReport();
 
   const getReport = useCallback(
-    (update) => {
-      if (!update && report?.orders?.length) return;
+    (update, config = {}) => {
+      if (!update) return;
       dispatch(setLoader(true));
-      postRequest("order/get", {}, user?.token)
+      postRequest("order/get", config, user?.token)
         .then(({ data }) => {
           dispatch(setLoader(false));
           dispatch(setReport(data?.result));
@@ -38,12 +39,13 @@ const Dashboard = () => {
           console.log(err);
         });
     },
-    [user?.token, report?.orders?.length, dispatch]
+    [user?.token, dispatch]
   );
 
   useEffect(() => {
-    getReport();
-  }, [getReport]);
+    if (report?.length) return null;
+    getReport(true);
+  }, [getReport, report?.length]);
 
   return (
     <div className="container-page">
@@ -57,24 +59,47 @@ const Dashboard = () => {
             </Flex>
           </Button>
         </Flex>
-        {/* <Flex align={"flex-end"} gap={"lg"} my={"lg"}>
+        <Flex align={"flex-end"} gap={"lg"} my={"lg"}>
           <Select
             label="Ishchilar bo'yicha"
-            data={[{ label: "Afitsantlar", value: "0" }, ...departments].map(
-              (item) =>
-                item.value === department.value
-                  ? { ...item, disabled: true }
-                  : item
-            )}
-            defaultValue={"0"}
+            data={[
+              {
+                value: "all",
+                label: "Barchasi",
+                disabled: isWaiter?.id === "all",
+              },
+              ...waiters?.map((item) => ({
+                value: String(item.id),
+                label: item?.full_name,
+                disabled: isWaiter?.id === String(item?.id),
+              })),
+            ]}
+            defaultValue={"all"}
             required
-            onChange={(value) =>
-              setDepartment(
-                [{ label: "Afitsantlar", value: "0" }, ...departments]?.find(
-                  (item) => item?.value === value
-                )
-              )
-            }
+            onChange={(_value) => {
+              setIsWaiter({
+                id: _value,
+                full_name: waiters?.find((item) => String(item?.id) === _value)
+                  ?.full_name,
+              });
+
+              const config = {
+                from_date: moment(value[0]).format("YYYY-MM-DD"),
+                to_date: moment(value[1]).format("YYYY-MM-DD"),
+                user_id: _value,
+              };
+
+              if (_value === "all") {
+                delete config.user_id;
+              }
+
+              if (!value[0] || !value[1]) {
+                delete config.from_date;
+                delete config.to_date;
+              }
+
+              getReport(true, config);
+            }}
           />
           <DatePickerInput
             required
@@ -84,6 +109,18 @@ const Dashboard = () => {
             onChange={(date) => {
               setValue(date);
               setIsTodayData(false);
+              if (!date[0] || !date[1]) {
+                return null;
+              }
+              const config = {
+                from_date: moment(date[0]).format("YYYY-MM-DD"),
+                to_date: moment(date[1]).format("YYYY-MM-DD"),
+                user_id: isWaiter?.id,
+              };
+              if (!isWaiter?.id || isWaiter?.id === "all") {
+                delete config.user_id;
+              }
+              getReport(true, config);
             }}
             maxDate={new Date()}
             minDate={new Date().setMonth(new Date().getMonth() - 1)}
@@ -93,13 +130,27 @@ const Dashboard = () => {
               if (isTodayData) return null;
               setValue([new Date(), new Date()]);
               setIsTodayData(true);
+              const config = {
+                from_date: moment().format("YYYY-MM-DD"),
+                to_date: moment().format("YYYY-MM-DD"),
+                user_id: isWaiter?.id,
+              };
+              if (!isWaiter?.id || isWaiter?.id === "all") {
+                delete config.user_id;
+              }
+              getReport(true, config);
             }}
           >
             Bugunlik hisobot
           </Button>
-        </Flex> */}
+        </Flex>
       </div>
-      {/* <Text fw={600} fz={"lg"}>
+      <Text fw={600} fz={"lg"}>
+        {isWaiter?.full_name
+          ? isWaiter?.full_name + " ishchisiga"
+          : "Barcha ishchilar bo'yicha"}
+      </Text>
+      <Text fw={600} fz={"lg"}>
         {isTodayData
           ? "Bugungi 24 soatlik hisobot"
           : value.filter(Boolean).length === 2
@@ -108,7 +159,8 @@ const Dashboard = () => {
                 moment(d).format("DD-MM-YYYY") + (i ? " gacha" : " dan ")
             )
           : null}
-      </Text> */}
+      </Text>
+
       <TableComponent
         data={report}
         user={user}

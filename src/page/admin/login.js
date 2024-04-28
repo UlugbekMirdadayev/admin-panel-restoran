@@ -1,15 +1,15 @@
 import React from "react";
 import {
-  TextInput,
   PasswordInput,
   Paper,
   Title,
   Container,
   Button,
   Text,
+  NumberInput,
 } from "@mantine/core";
-import { post } from "../../services/api";
 import { useForm } from "@mantine/form";
+import { post } from "../../services/api";
 import classes from "./style.module.css";
 import { useDispatch } from "react-redux";
 import { setLoader } from "../../redux/loaderSlice";
@@ -28,6 +28,7 @@ const Login = () => {
   });
 
   const onSubmit = (values) => {
+    values.phone_number = values.phone_number + "";
     dispatch(setLoader(true));
     post("auth/login", values)
       .then(({ data }) => {
@@ -54,7 +55,7 @@ const Login = () => {
         </Title>
 
         <Paper withBorder shadow="md" w={400} p={30} mt={30} radius="md">
-          <TextInput
+          <NumberInput
             label={
               <Text
                 style={{
@@ -67,6 +68,9 @@ const Login = () => {
             }
             placeholder="998***"
             required
+            prefix="+"
+            maxLength={13}
+            rightSection={<></>}
             {...form.getInputProps("phone_number")}
           />
           <PasswordInput

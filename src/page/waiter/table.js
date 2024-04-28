@@ -28,6 +28,9 @@ const inputs = [
     name: "phone_number",
     label: "Telefon raqami",
     as: NumberInput,
+    prefix: "+",
+    rightSection: <></>,
+    maxLength: 13,
   },
   {
     name: "is_active",
@@ -163,7 +166,7 @@ export default function TableComponent({
         </Button>
       </Table.Td>
       <Table.Td>{element?.full_name}</Table.Td>
-      <Table.Td>{element?.phone_number}</Table.Td>
+      <Table.Td>+{element?.phone_number}</Table.Td>
       <Table.Td>
         <Button
           size="xs"
@@ -221,6 +224,9 @@ export default function TableComponent({
               data={input.data?.map((element) => ({
                 ...element,
               }))}
+              prefix={input.prefix}
+              rightSection={input.rightSection}
+              maxLength={input.maxLength}
               disabled={input.disabled}
               {...form.getInputProps(input.name)}
             />
