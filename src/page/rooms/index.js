@@ -75,6 +75,7 @@ const Room = () => {
       </Flex>
       <TableComponent
         data={rooms}
+        user={user}
         handleDelete={(id) =>
           handleDelete(
             `room/delete/${id}`,

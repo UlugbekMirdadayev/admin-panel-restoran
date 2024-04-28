@@ -20,7 +20,7 @@ export default function TableComponent({ data, user }) {
     const componentRef = useRef();
     const handlePrint = () => {
       setIsPrintLoading(true);
-      getRequest(`room/print/${order?.room_id}`, user?.token)
+      getRequest(`order/print/${order?.id}`, user?.token)
         .then(({ data }) => {
           console.log(data, "data");
           setIsPrintLoading(false);
@@ -203,7 +203,7 @@ export default function TableComponent({ data, user }) {
           <Table.Th>Ofitsiant ismi</Table.Th>
           <Table.Th>Umumiy summa</Table.Th>
           <Table.Th>Sanasi</Table.Th>
-          {/* <Table.Th>Check</Table.Th> */}
+          <Table.Th>Ko'rish</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
