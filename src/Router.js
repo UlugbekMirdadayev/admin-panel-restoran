@@ -19,7 +19,7 @@ import Category from "./page/category";
 import AdminsPage from "./page/admins";
 import { setRooms } from "./redux/roomSlice";
 
-const SOCKET_SERVER_URL = "ws://epos-admin.dadabayev.uz:8887/";
+const SOCKET_SERVER_URL = "wss://epos-admin.dadabayev.uz/websocket/";
 
 const routes = [
   {
