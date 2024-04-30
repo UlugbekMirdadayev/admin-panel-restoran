@@ -1,7 +1,7 @@
 import { rem } from "@mantine/core";
 
-export const BASE_URL = "https://epos-admin.dadabayev.uz/api/";
-export const IMAGE_URL = "https://epos-admin.dadabayev.uz/";
+export const BASE_URL = "http://epos/api/";
+export const IMAGE_URL = "http://epos/";
 
 export const units = ["dona", "kg", "litr", "paket", "quti", "gr", "pors"];
 
