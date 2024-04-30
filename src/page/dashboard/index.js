@@ -44,7 +44,12 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (report?.length) return null;
-    getReport(true);
+    getReport(true, {
+      from_date: moment(
+        new Date(new Date().setDate(new Date().getDate() - 7))
+      ).format("YYYY-MM-DD"),
+      to_date: moment(new Date()).format("YYYY-MM-DD"),
+    });
   }, [getReport, report?.length]);
 
   return (

@@ -74,7 +74,7 @@ export default function TableComponent({ data, user }) {
             </Button>
             <div className="cheque" ref={componentRef}>
               <div className="print-body">
-                <p className="title-text">Sizning tartib raqamingiz</p>
+                <p className="title-text">Chek id raqamingiz</p>
                 <h1>{order?.id}</h1>
                 <p>
                   Ochilgan vaqti{" "}
@@ -116,43 +116,6 @@ export default function TableComponent({ data, user }) {
                         </td>
                         <td className="right">
                           {formatCurrencyUZS(order?.total)}
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <th className="left" colSpan={2}>
-                          Xizmat haqi 10%
-                        </th>
-                        <th className="right">
-                          {formatCurrencyUZS(order?.total * 0.1)}
-                        </th>
-                      </tr>
-                      <tr>
-                        <th className="left" colSpan={2}>
-                          Jami + ofitsant
-                        </th>
-                        <th className="right">
-                          {formatCurrencyUZS(order?.total * 1.1)}
-                        </th>
-                      </tr>
-                      <tr>
-                        <td className="left" colSpan={3}>
-                          Olib ketish xizmati
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="left" colSpan={3}>
-                          Yetkazib berish ximati
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="left" colSpan={3}>
-                          +998 99 888 77 66
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="left" colSpan={3}>
-                          Bizni tanlaganingiz uchun raxmat!
                         </td>
                       </tr>
                     </tfoot>
