@@ -40,7 +40,7 @@ const Login = () => {
         }
       })
       .catch((err) => {
-        toast.error(err?.response?.data?.result || "Error");
+        toast.error(JSON.stringify(err?.response?.data?.message || err?.response?.data || "Error"));
       })
       .finally(() => {
         dispatch(setLoader(false));
