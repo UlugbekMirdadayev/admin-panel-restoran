@@ -10,6 +10,11 @@ const inputs = [
     label: "Kategoriya nomi",
     as: TextInput,
   },
+  {
+    name: "printer_ip",
+    label: "Printer IP",
+    as: TextInput,
+  },
 ];
 
 function FormCreate({ handleUpdate, close, setLoader, editForm }) {
@@ -17,6 +22,7 @@ function FormCreate({ handleUpdate, close, setLoader, editForm }) {
   const form = useForm({
     initialValues: {
       name: editForm?.name || "",
+      printer_ip: editForm?.printer_ip || "",
     },
   });
 
